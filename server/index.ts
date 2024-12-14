@@ -1,4 +1,7 @@
 import express, { Request, Response } from "express";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import cors from "cors";
 
 const app = express();
 const PORT = 3000;
