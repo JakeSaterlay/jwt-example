@@ -2,6 +2,9 @@ import express, { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import cors from "cors";
+import { usersTable } from "./db/schema";
+import { createClient } from "@libsql/client/.";
+import { drizzle } from "drizzle-orm/libsql";
 
 const app = express();
 const PORT = 3000;
@@ -11,6 +14,14 @@ app.use(express.json());
 
 app.use(cors());
 
+require("dotenv").config();
+
+export const client = createClient({
+  url: process.env.TURSO_DATABASE_URL || "",
+  authToken: process.env.TURSO_AUTH_TOKEN,
+});
+const db = drizzle(client);
+
 // User type definition
 interface User {
   username: string;
@@ -19,6 +30,11 @@ interface User {
 
 const users: User[] = []; // Simulate a simple in-memory "database"
 const SECRET_KEY = "your-secret-key";
+
+app.get("/turso-users", async (req: Request, res: Response) => {
+  const data = await db.select().from(usersTable).all();
+  res.json({ data: data });
+});
 
 app.post("/register", async (req, res) => {
   const { username, password } = req.body;

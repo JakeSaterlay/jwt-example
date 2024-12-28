@@ -6,6 +6,7 @@ function App() {
   const [password, setPassword] = useState("");
   const [token, setToken] = useState(null);
   const [message, setMessage] = useState("");
+  const [users, setUsers] = useState<any>(null);
 
   const register = async () => {
     try {
@@ -52,6 +53,11 @@ function App() {
     setMessage("Logged out");
   };
 
+  const getUsersFromDb = async () => {
+    const response = await axios.get("http://localhost:3000/turso-users");
+    setUsers(response.data.data);
+  };
+
   return (
     <div className="p-10">
       <h1>JWT Authentication Example</h1>
@@ -87,8 +93,12 @@ function App() {
         >
           Access Protected Route
         </button>
+        <button className="bg-gray-500 text-white p-2" onClick={getUsersFromDb}>
+          Get users from DB
+        </button>
       </div>
       <p className="text-red-500">{message}</p>
+      {users && users.map((user: any) => <div>{user.name}</div>)}
     </div>
   );
 }
