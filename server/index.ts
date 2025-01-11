@@ -3,8 +3,8 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import cors from "cors";
 import { usersTable } from "./db/schema";
-import { createClient } from "@libsql/client/.";
 import { drizzle } from "drizzle-orm/libsql";
+import { createClient } from "@libsql/client";
 
 const app = express();
 const PORT = 3000;
@@ -85,12 +85,6 @@ app.get("/protected", (req: Request, res: Response) => {
     const user = decodedUser as User;
     res.json({ message: `Hello, ${user.username}`, user });
   });
-});
-
-app.post("/logout", (req: Request, res: Response) => {
-  // just send a success message to the front end, to alert it to remove from state, storage, cookie, wherever
-  // the token is stored
-  res.json({ message: "Logged out successfully" });
 });
 
 app.listen(PORT, () => {

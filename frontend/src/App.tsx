@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 
 function App() {
@@ -48,9 +48,8 @@ function App() {
   };
 
   const logout = async () => {
-    await axios.post("http://localhost:3000/logout");
     setToken(null);
-    setMessage("Logged out");
+    setMessage("Logged Out");
   };
 
   const getUsersFromDb = async () => {
