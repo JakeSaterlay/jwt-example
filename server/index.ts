@@ -31,9 +31,29 @@ interface User {
 const users: User[] = []; // Simulate a simple in-memory "database"
 const SECRET_KEY = "your-secret-key";
 
+const authoriseUser = (token: string | undefined) => {
+  // if token doesnt exist, dont continue
+  if (!token) {
+    console.log("NO TOKENNNNN");
+    throw new Error(`Token verification failed NO TOKENNNNNN`);
+  }
+  try {
+    const decoded = jwt.verify(token, SECRET_KEY);
+    return decoded; // Returns the decoded token payload
+  } catch (error) {
+    throw new Error(`Token verification failed: ${error}`);
+  }
+};
+
 app.get("/turso-users", async (req: Request, res: Response) => {
-  const data = await db.select().from(usersTable).all();
-  res.json({ data: data });
+  try {
+    const token = req.headers["authorization"];
+    authoriseUser(token); // Verify the token
+    const data = await db.select().from(usersTable).all(); // Fetch data
+    res.json({ data });
+  } catch (error) {
+    res.status(401).json({ error: error }); // Unauthorized access
+  }
 });
 
 app.post("/register", async (req, res) => {
@@ -67,24 +87,9 @@ app.post("/login", async (req: Request, res: Response) => {
 app.get("/protected", (req: Request, res: Response) => {
   // check headers for token
   const token = req.headers["authorization"];
-
-  // if token doesnt exist, dont continue
-  if (!token) {
-    res.status(401).json({ message: "Token required" });
-    return;
-  }
-
-  // if token exists, verify it
-  jwt.verify(token, SECRET_KEY, (err, decodedUser) => {
-    // if not verified, dont continue
-    if (err) {
-      res.status(403).json({ message: "Invalid token" });
-      return;
-    }
-    // cast decoded JWT to user type and send in response
-    const user = decodedUser as User;
-    res.json({ message: `Hello, ${user.username}`, user });
-  });
+  const decodedUser = authoriseUser(token);
+  const user = decodedUser as User;
+  res.json({ message: `Hello, ${user.username}`, user });
 });
 
 app.listen(PORT, () => {

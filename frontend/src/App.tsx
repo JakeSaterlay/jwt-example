@@ -53,8 +53,15 @@ function App() {
   };
 
   const getUsersFromDb = async () => {
-    const response = await axios.get("http://localhost:3000/turso-users");
-    setUsers(response.data.data);
+    try {
+      const response = await axios.get("http://localhost:3000/turso-users", {
+        headers: { Authorization: token },
+      });
+      setUsers(response.data.data);
+    } catch (error) {
+      setMessage("Access denied");
+      console.error(error);
+    }
   };
 
   return (
