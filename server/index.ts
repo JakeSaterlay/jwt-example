@@ -34,8 +34,7 @@ const SECRET_KEY = "your-secret-key";
 const authoriseUser = (token: string | undefined) => {
   // if token doesnt exist, dont continue
   if (!token) {
-    console.log("NO TOKENNNNN");
-    throw new Error(`Token verification failed NO TOKENNNNNN`);
+    throw new Error(`Token verification failed no token`);
   }
   try {
     const decoded = jwt.verify(token, SECRET_KEY);
@@ -86,10 +85,16 @@ app.post("/login", async (req: Request, res: Response) => {
 
 app.get("/protected", (req: Request, res: Response) => {
   // check headers for token
-  const token = req.headers["authorization"];
-  const decodedUser = authoriseUser(token);
-  const user = decodedUser as User;
-  res.json({ message: `Hello, ${user.username}`, user });
+  try {
+    // check headers for token
+    const token = req.headers["authorization"];
+    const user = authoriseUser(token) as User;
+    res.json({ message: `Hello, ${user.username}`, user });
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    res.status(401).json({ error: errorMessage });
+  }
 });
 
 app.listen(PORT, () => {

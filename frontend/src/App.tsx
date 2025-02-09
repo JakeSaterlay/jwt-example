@@ -42,8 +42,14 @@ function App() {
       });
       setMessage(response.data.message);
     } catch (error) {
-      setMessage("Access denied");
-      console.error(error);
+      console.log(error);
+      let errorMessage = "";
+      if (axios.isAxiosError(error)) {
+        errorMessage = error.response?.data?.error || "Unauthorized access";
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      setMessage(errorMessage);
     }
   };
 
